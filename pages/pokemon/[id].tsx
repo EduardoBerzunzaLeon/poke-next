@@ -115,33 +115,43 @@ const PokemonPage: NextPage<Props> = ({ pokemon }) => {
   )
 }
 
+// export const getStaticProps: GetStaticProps = async ({ params }) => {
+
+//   const { id } = params as { id: string };
+export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
+
+  // const { id } = params!;
+  const pokemon = await getPokemonInfo( String(params?.id) );
+
+  if( !pokemon ) {
+    return { 
+      redirect: {
+        destination: '/',
+        premanent: false // Si pongo true los bots de google borran permanente esa ruta y no vovleran a entrar
+      }, 
+      notFound: true
+    }
+  }
+
+  return {
+    props: { pokemon },
+    revalidate: 86400,
+  }
+}
+
 
 // You should use getStaticPaths if you’re statically pre-rendering pages that use dynamic routes
 
-export const getStaticPaths: GetStaticPaths = async (ctx) => {
+export const getStaticPaths: GetStaticPaths<Params> = async (ctx) => {
   
   const paths = [...Array(151)].map((_, index) => ({
     params: { id: `${index + 1}` },
   }));
 
-  return {
-    paths,
-    fallback: false
-  }
+  return { paths, fallback: 'blocking' }
 }
 
 
-export const getStaticProps: GetStaticProps<Props, Params> = async (ctx) => {
-
-  const { id } = ctx.params!;
-  const pokemon = await getPokemonInfo( id );
-
-  return {
-    props: {
-      pokemon
-    }
-  }
-}
 
 
 export default PokemonPage;

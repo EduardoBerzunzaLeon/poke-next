@@ -146,7 +146,17 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (ctx) => {
   const { name } = ctx.params!;
   const pokemon = await getPokemonInfo( name );
 
-  return { props: { pokemon } }
+  if( !pokemon ) {
+    return { 
+      redirect: {
+        destination: '/',
+        premanent: false // Si pongo true los bots de google borran permanente esa ruta y no vovleran a entrar
+      },
+      notFound: true
+    }
+  }
+
+  return { props: { pokemon }, revalidate: 86400}
 }
 
 
